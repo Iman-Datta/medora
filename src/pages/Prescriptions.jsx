@@ -1,15 +1,36 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from "react";
 import {
-  ScanLine, UploadCloud, FileText, Image as ImageIcon, X, Check, Pencil,
-  Save, Sparkles, Plus, Pill,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
-import { prescriptionApi, medicineApi } from '@/services/api';
-import Spinner from '@/components/Spinner';
+  ScanLine,
+  UploadCloud,
+  FileText,
+  X,
+  Check,
+  Pencil,
+  Save,
+  Sparkles,
+  Plus,
+  Pill,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import { prescriptionApi, medicineApi } from "@/services/api";
+import Spinner from "@/components/Spinner";
 
-const FORM_OPTIONS = ['Tablet', 'Capsule', 'Syrup', 'Injection', 'Drops', 'Ointment', 'Other'];
-const INSTRUCTION_OPTIONS = ['Before Food', 'After Food', 'With Food', 'Anytime'];
-const FREQUENCY_OPTIONS = ['Daily', 'Specific Days', 'As Needed (PRN)'];
+const FORM_OPTIONS = [
+  "Tablet",
+  "Capsule",
+  "Syrup",
+  "Injection",
+  "Drops",
+  "Ointment",
+  "Other",
+];
+const INSTRUCTION_OPTIONS = [
+  "Before Food",
+  "After Food",
+  "With Food",
+  "Anytime",
+];
+const FREQUENCY_OPTIONS = ["Daily", "Specific Days", "As Needed (PRN)"];
 
 export default function Prescriptions() {
   const [file, setFile] = useState(null);
@@ -24,26 +45,34 @@ export default function Prescriptions() {
 
   const handleFile = useCallback((f) => {
     if (!f) return;
-    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+    const validTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "application/pdf",
+    ];
     if (!validTypes.includes(f.type)) {
-      toast.error('Please upload a PNG, JPG, or PDF file');
+      toast.error("Please upload a PNG, JPG, or PDF file");
       return;
     }
     setFile(f);
     setParsedMeds([]);
     setHasParsed(false);
-    if (f.type.startsWith('image/')) {
+    if (f.type.startsWith("image/")) {
       setPreviewUrl(URL.createObjectURL(f));
     } else {
       setPreviewUrl(null);
     }
   }, []);
 
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    setDragActive(false);
-    handleFile(e.dataTransfer.files[0]);
-  }, [handleFile]);
+  const handleDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      setDragActive(false);
+      handleFile(e.dataTransfer.files[0]);
+    },
+    [handleFile],
+  );
 
   const handleParse = async () => {
     if (!file) return;
@@ -51,30 +80,41 @@ export default function Prescriptions() {
     setHasParsed(false);
     try {
       const res = await prescriptionApi.parse(file);
-      const meds = res.data?.medicines || res.data || [];
+
+      const meds = Array.isArray(res.data?.data)
+        ? res.data.data
+        : Array.isArray(res.data?.medicines)
+          ? res.data.medicines
+          : Array.isArray(res.data)
+            ? res.data
+            : [];
+
       if (meds.length === 0) {
-        toast.error('No medications detected in this prescription');
+        toast.error("No medications detected in this prescription");
       } else {
-        // Normalize each parsed med with defaults
         const normalized = meds.map((m) => ({
-          name: m.name || '',
-          dosage: m.dosage || '',
-          form: m.form || 'Tablet',
-          instructions: m.instructions || 'After Food',
-          frequency: m.frequency || 'Daily',
+          name: m.name || "",
+          dosage: m.dosage || "",
+          form: m.form || "Tablet",
+          instructions: m.instructions || "After Food",
+          frequency: m.frequency || "Daily",
           currentStock: m.currentStock ?? 10,
           reorderLevel: m.reorderLevel ?? 5,
-          notes: m.notes || '',
+          notes: m.notes || "",
           schedules: (m.schedules || []).length
             ? m.schedules
-            : [{ time: '08:00', dose: '1 tablet' }],
+            : [{ time: "08:00", dose: "1 tablet" }],
         }));
         setParsedMeds(normalized);
         setHasParsed(true);
-        toast.success(`Found ${normalized.length} medication${normalized.length === 1 ? '' : 's'}`);
+        toast.success(
+          `Found ${normalized.length} medication${normalized.length === 1 ? "" : "s"}`,
+        );
       }
     } catch (err) {
-      toast.error(err.normalizedMessage || 'Failed to parse prescription');
+      toast.error(
+        err.normalizedMessage || err.message || "Failed to parse prescription",
+      );
     } finally {
       setParsing(false);
     }
@@ -82,7 +122,7 @@ export default function Prescriptions() {
 
   const updateParsedMed = (idx, field, value) =>
     setParsedMeds((prev) =>
-      prev.map((m, i) => (i === idx ? { ...m, [field]: value } : m))
+      prev.map((m, i) => (i === idx ? { ...m, [field]: value } : m)),
     );
 
   const removeParsedMed = (idx) =>
@@ -92,25 +132,38 @@ export default function Prescriptions() {
     setParsedMeds((prev) => [
       ...prev,
       {
-        name: '', dosage: '', form: 'Tablet', instructions: 'After Food',
-        frequency: 'Daily', currentStock: 10, reorderLevel: 5, notes: '',
-        schedules: [{ time: '08:00', dose: '1 tablet' }],
+        name: "",
+        dosage: "",
+        form: "Tablet",
+        instructions: "After Food",
+        frequency: "Daily",
+        currentStock: 10,
+        reorderLevel: 5,
+        notes: "",
+        schedules: [{ time: "08:00", dose: "1 tablet" }],
       },
     ]);
 
   const handleBulkSave = async () => {
     const valid = parsedMeds.filter((m) => m.name.trim());
     if (valid.length === 0) {
-      toast.error('Add at least one medication with a name');
+      toast.error("Add at least one medication with a name");
       return;
     }
     setSavingBulk(true);
     try {
-      await medicineApi.bulkCreate(valid);
-      toast.success(`${valid.length} medication${valid.length === 1 ? '' : 's'} saved`);
+      if (medicineApi.bulkCreate) {
+        await medicineApi.bulkCreate(valid);
+      } else {
+        // Fallback: save individually if bulk endpoint is not available
+        await Promise.all(valid.map((med) => medicineApi.create(med)));
+      }
+      toast.success(
+        `${valid.length} medication${valid.length === 1 ? "" : "s"} saved`,
+      );
       resetAll();
     } catch (err) {
-      toast.error(err.normalizedMessage || 'Failed to save medications');
+      toast.error(err.normalizedMessage || "Failed to save medications");
     } finally {
       setSavingBulk(false);
     }
@@ -132,21 +185,27 @@ export default function Prescriptions() {
           <ScanLine className="w-6 h-6 text-brand-600" />
           Scan Prescription
         </h1>
-        <p className="text-slate-500 mt-1">Upload a prescription image or PDF — our AI extracts medications for you.</p>
+        <p className="text-slate-500 mt-1">
+          Upload a prescription image or PDF — our AI extracts medications for
+          you.
+        </p>
       </div>
 
       {/* Upload zone */}
       {!hasParsed && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
           <div
-            onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragActive(true);
+            }}
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
             onClick={() => inputRef.current?.click()}
             className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-base ${
               dragActive
-                ? 'border-brand-500 bg-brand-50'
-                : 'border-slate-200 hover:border-brand-300 hover:bg-slate-50'
+                ? "border-brand-500 bg-brand-50"
+                : "border-slate-200 hover:border-brand-300 hover:bg-slate-50"
             }`}
           >
             <input
@@ -159,14 +218,20 @@ export default function Prescriptions() {
             {file ? (
               <div className="space-y-3">
                 {previewUrl ? (
-                  <img src={previewUrl} alt="Prescription preview" className="max-h-48 mx-auto rounded-lg shadow-sm" />
+                  <img
+                    src={previewUrl}
+                    alt="Prescription preview"
+                    className="max-h-48 mx-auto rounded-lg shadow-sm"
+                  />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto">
                     <FileText className="w-8 h-8 text-red-500" />
                   </div>
                 )}
                 <p className="font-medium text-slate-700">{file.name}</p>
-                <p className="text-sm text-slate-400">{(file.size / 1024).toFixed(0)} KB</p>
+                <p className="text-sm text-slate-400">
+                  {(file.size / 1024).toFixed(0)} KB
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -174,8 +239,12 @@ export default function Prescriptions() {
                   <UploadCloud className="w-8 h-8 text-brand-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-slate-700">Drop your prescription here</p>
-                  <p className="text-sm text-slate-400 mt-1">or click to browse — PNG, JPG, or PDF</p>
+                  <p className="font-medium text-slate-700">
+                    Drop your prescription here
+                  </p>
+                  <p className="text-sm text-slate-400 mt-1">
+                    or click to browse — PNG, JPG, or PDF
+                  </p>
                 </div>
               </div>
             )}
@@ -194,7 +263,13 @@ export default function Prescriptions() {
                 disabled={parsing}
                 className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium px-6 py-2.5 rounded-xl transition-base disabled:opacity-60"
               >
-                {parsing ? <Spinner size={20} /> : <><Sparkles className="w-4 h-4" /> Scan with AI</>}
+                {parsing ? (
+                  <Spinner size={20} />
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" /> Scan with AI
+                  </>
+                )}
               </button>
             </div>
           )}
@@ -209,8 +284,12 @@ export default function Prescriptions() {
                 <div className="absolute inset-0 rounded-full border-4 border-brand-400 animate-pulse-ring" />
               </div>
               <div className="text-center">
-                <p className="font-medium text-slate-700">AI is reading your prescription...</p>
-                <p className="text-sm text-slate-400 mt-1">Extracting medication names, dosages, and instructions</p>
+                <p className="font-medium text-slate-700">
+                  AI is reading your prescription...
+                </p>
+                <p className="text-sm text-slate-400 mt-1">
+                  Extracting medication names, dosages, and instructions
+                </p>
               </div>
             </div>
           )}
@@ -226,8 +305,12 @@ export default function Prescriptions() {
                 <Check className="w-5 h-5 text-brand-600" />
               </div>
               <div>
-                <h2 className="font-semibold text-slate-900">Extracted medications</h2>
-                <p className="text-sm text-slate-400">Review and edit before saving</p>
+                <h2 className="font-semibold text-slate-900">
+                  Extracted medications
+                </h2>
+                <p className="text-sm text-slate-400">
+                  Review and edit before saving
+                </p>
               </div>
             </div>
             <button
@@ -251,14 +334,19 @@ export default function Prescriptions() {
                       <Pill className="w-5 h-5 text-brand-600" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-slate-900 truncate">{med.name || 'Unnamed'}</h3>
+                      <h3 className="font-semibold text-slate-900 truncate">
+                        {med.name || "Unnamed"}
+                      </h3>
                       <p className="text-sm text-slate-400">
                         {med.dosage} — {med.form} — {med.instructions}
                       </p>
                       {(med.schedules || []).length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mt-2">
                           {med.schedules.map((s, i) => (
-                            <span key={i} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
+                            <span
+                              key={i}
+                              className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md"
+                            >
                               {s.time} · {s.dose}
                             </span>
                           ))}
@@ -285,7 +373,9 @@ export default function Prescriptions() {
                 /* Expanded edit view */
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-slate-900">Edit medication #{idx + 1}</h3>
+                    <h3 className="font-semibold text-slate-900">
+                      Edit medication #{idx + 1}
+                    </h3>
                     <button
                       onClick={() => setEditingIdx(null)}
                       className="flex items-center gap-1 text-sm text-brand-600 font-medium hover:text-brand-700 transition-base"
@@ -295,37 +385,96 @@ export default function Prescriptions() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <ParsedField label="Name">
-                      <input type="text" value={med.name} onChange={(e) => updateParsedMed(idx, 'name', e.target.value)} className={inp} />
+                      <input
+                        type="text"
+                        value={med.name}
+                        onChange={(e) =>
+                          updateParsedMed(idx, "name", e.target.value)
+                        }
+                        className={inp}
+                      />
                     </ParsedField>
                     <ParsedField label="Dosage">
-                      <input type="text" value={med.dosage} onChange={(e) => updateParsedMed(idx, 'dosage', e.target.value)} className={inp} />
+                      <input
+                        type="text"
+                        value={med.dosage}
+                        onChange={(e) =>
+                          updateParsedMed(idx, "dosage", e.target.value)
+                        }
+                        className={inp}
+                      />
                     </ParsedField>
                     <ParsedField label="Form">
-                      <select value={med.form} onChange={(e) => updateParsedMed(idx, 'form', e.target.value)} className={inp}>
-                        {FORM_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                      <select
+                        value={med.form}
+                        onChange={(e) =>
+                          updateParsedMed(idx, "form", e.target.value)
+                        }
+                        className={inp}
+                      >
+                        {FORM_OPTIONS.map((o) => (
+                          <option key={o}>{o}</option>
+                        ))}
                       </select>
                     </ParsedField>
                     <ParsedField label="Instructions">
-                      <select value={med.instructions} onChange={(e) => updateParsedMed(idx, 'instructions', e.target.value)} className={inp}>
-                        {INSTRUCTION_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                      <select
+                        value={med.instructions}
+                        onChange={(e) =>
+                          updateParsedMed(idx, "instructions", e.target.value)
+                        }
+                        className={inp}
+                      >
+                        {INSTRUCTION_OPTIONS.map((o) => (
+                          <option key={o}>{o}</option>
+                        ))}
                       </select>
                     </ParsedField>
                     <ParsedField label="Frequency">
-                      <select value={med.frequency} onChange={(e) => updateParsedMed(idx, 'frequency', e.target.value)} className={inp}>
-                        {FREQUENCY_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                      <select
+                        value={med.frequency}
+                        onChange={(e) =>
+                          updateParsedMed(idx, "frequency", e.target.value)
+                        }
+                        className={inp}
+                      >
+                        {FREQUENCY_OPTIONS.map((o) => (
+                          <option key={o}>{o}</option>
+                        ))}
                       </select>
                     </ParsedField>
                     <div className="grid grid-cols-2 gap-2">
                       <ParsedField label="Stock">
-                        <input type="number" value={med.currentStock} onChange={(e) => updateParsedMed(idx, 'currentStock', e.target.value)} className={inp} />
+                        <input
+                          type="number"
+                          value={med.currentStock}
+                          onChange={(e) =>
+                            updateParsedMed(idx, "currentStock", e.target.value)
+                          }
+                          className={inp}
+                        />
                       </ParsedField>
                       <ParsedField label="Reorder">
-                        <input type="number" value={med.reorderLevel} onChange={(e) => updateParsedMed(idx, 'reorderLevel', e.target.value)} className={inp} />
+                        <input
+                          type="number"
+                          value={med.reorderLevel}
+                          onChange={(e) =>
+                            updateParsedMed(idx, "reorderLevel", e.target.value)
+                          }
+                          className={inp}
+                        />
                       </ParsedField>
                     </div>
                   </div>
                   <ParsedField label="Notes">
-                    <textarea rows={2} value={med.notes} onChange={(e) => updateParsedMed(idx, 'notes', e.target.value)} className={`${inp} resize-none`} />
+                    <textarea
+                      rows={2}
+                      value={med.notes}
+                      onChange={(e) =>
+                        updateParsedMed(idx, "notes", e.target.value)
+                      }
+                      className={`${inp} resize-none`}
+                    />
                   </ParsedField>
                 </div>
               )}
@@ -345,7 +494,13 @@ export default function Prescriptions() {
               disabled={savingBulk}
               className="w-full sm:flex-1 flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium px-6 py-2.5 rounded-xl transition-base disabled:opacity-60"
             >
-              {savingBulk ? <Spinner size={20} /> : <><Save className="w-4 h-4" /> Save all to medications</>}
+              {savingBulk ? (
+                <Spinner size={20} />
+              ) : (
+                <>
+                  <Save className="w-4 h-4" /> Save all to medications
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -355,12 +510,14 @@ export default function Prescriptions() {
 }
 
 const inp =
-  'w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm placeholder-slate-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-base bg-white';
+  "w-full px-3 py-2 rounded-lg border border-slate-200 text-slate-900 text-sm placeholder-slate-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-base bg-white";
 
 function ParsedField({ label, children }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-slate-500 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-slate-500 mb-1">
+        {label}
+      </label>
       {children}
     </div>
   );

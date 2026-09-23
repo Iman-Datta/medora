@@ -1,15 +1,16 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import AppLayout from '@/components/AppLayout';
-import Spinner from '@/components/Spinner';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import Dashboard from '@/pages/Dashboard';
-import Medications from '@/pages/Medications';
-import MedicineForm from '@/pages/MedicineForm';
-import Prescriptions from '@/pages/Prescriptions';
-import Notifications from '@/pages/Notifications';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import AppLayout from "@/components/AppLayout";
+import GlobalAlarmListener from "@/components/GlobalAlarmListener";
+import Spinner from "@/components/Spinner";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import Dashboard from "@/pages/Dashboard";
+import Medications from "@/pages/Medications";
+import MedicineForm from "@/pages/MedicineForm";
+import Prescriptions from "@/pages/Prescriptions";
+import Notifications from "@/pages/Notifications";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -46,28 +47,43 @@ export default function App() {
           toastOptions={{
             duration: 3500,
             style: {
-              borderRadius: '12px',
-              padding: '12px 16px',
-              fontSize: '14px',
-              fontWeight: '500',
-              background: '#fff',
-              color: '#0f172a',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-              border: '1px solid #f1f5f9',
+              borderRadius: "12px",
+              padding: "12px 16px",
+              fontSize: "14px",
+              fontWeight: "500",
+              background: "#fff",
+              color: "#0f172a",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+              border: "1px solid #f1f5f9",
             },
-            success: { iconTheme: { primary: '#059669', secondary: '#fff' } },
-            error: { iconTheme: { primary: '#dc2626', secondary: '#fff' } },
+            success: { iconTheme: { primary: "#059669", secondary: "#fff" } },
+            error: { iconTheme: { primary: "#dc2626", secondary: "#fff" } },
           }}
         />
         <Routes>
-          {/* Public */}
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          {/* Public Routes */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            }
+          />
 
-          {/* Protected */}
+          {/* Protected Routes — GlobalAlarmListener only active here */}
           <Route
             element={
               <ProtectedRoute>
+                <GlobalAlarmListener />
                 <AppLayout />
               </ProtectedRoute>
             }
