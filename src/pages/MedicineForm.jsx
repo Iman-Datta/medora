@@ -1,24 +1,37 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, X, Save, Trash2 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { medicineApi } from '@/services/api';
-import Spinner from '@/components/Spinner';
+import { useEffect, useState } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { ArrowLeft, Plus, X, Save } from "lucide-react";
+import toast from "react-hot-toast";
+import { medicineApi } from "@/services/api";
+import Spinner from "@/components/Spinner";
 
-const FORM_OPTIONS = ['Tablet', 'Capsule', 'Syrup', 'Injection', 'Drops', 'Ointment', 'Other'];
-const INSTRUCTION_OPTIONS = ['Before Food', 'After Food', 'With Food', 'Anytime'];
-const FREQUENCY_OPTIONS = ['Daily', 'Specific Days', 'As Needed (PRN)'];
+const FORM_OPTIONS = [
+  "Tablet",
+  "Capsule",
+  "Syrup",
+  "Injection",
+  "Drops",
+  "Ointment",
+  "Other",
+];
+const INSTRUCTION_OPTIONS = [
+  "Before Food",
+  "After Food",
+  "With Food",
+  "Anytime",
+];
+const FREQUENCY_OPTIONS = ["Daily", "Specific Days", "As Needed (PRN)"];
 
 const emptyForm = {
-  name: '',
-  dosage: '',
-  form: 'Tablet',
-  instructions: 'After Food',
-  frequency: 'Daily',
-  currentStock: '',
-  reorderLevel: '',
-  notes: '',
-  schedules: [{ time: '08:00', dose: '1 tablet' }],
+  name: "",
+  dosage: "",
+  form: "Tablet",
+  instructions: "After Food",
+  frequency: "Daily",
+  currentStock: "",
+  reorderLevel: "",
+  notes: "",
+  schedules: [{ time: "08:00", dose: "1 tablet" }],
 };
 
 export default function MedicineForm() {
@@ -32,25 +45,49 @@ export default function MedicineForm() {
 
   useEffect(() => {
     if (!isEdit) return;
+
+    setLoading(true);
     medicineApi
       .getById(id)
       .then((res) => {
-        const med = res.data;
+        // Safely unwrap data whether backend sends res.data, res.data.data, or res.data.medicine
+        const med = res.data?.data || res.data?.medicine || res.data;
+
+        if (!med || typeof med !== "object") {
+          throw new Error("Invalid medication data received");
+        }
+
         setForm({
-          name: med.name || '',
-          dosage: med.dosage || '',
-          form: med.form || 'Tablet',
-          instructions: med.instructions || 'After Food',
-          frequency: med.frequency || 'Daily',
-          currentStock: med.currentStock ?? '',
-          reorderLevel: med.reorderLevel ?? '',
-          notes: med.notes || '',
-          schedules: (med.schedules || []).length ? med.schedules : [{ time: '08:00', dose: '1 tablet' }],
+          name: med.name || "",
+          dosage: med.dosage || "",
+          form: med.form || "Tablet",
+          instructions: med.instructions || "After Food",
+          frequency: med.frequency || "Daily",
+          currentStock:
+            med.currentStock !== undefined && med.currentStock !== null
+              ? med.currentStock
+              : "",
+          reorderLevel:
+            med.reorderLevel !== undefined && med.reorderLevel !== null
+              ? med.reorderLevel
+              : "",
+          notes: med.notes || "",
+          schedules:
+            Array.isArray(med.schedules) && med.schedules.length > 0
+              ? med.schedules.map((s) => ({
+                  time: s.time || "08:00",
+                  dose: s.dose || "1 tablet",
+                }))
+              : [{ time: "08:00", dose: "1 tablet" }],
         });
       })
       .catch((err) => {
-        toast.error(err.normalizedMessage || 'Failed to load medicine');
-        navigate('/medicines');
+        toast.error(
+          err.normalizedMessage ||
+            err.message ||
+            "Failed to load medicine details",
+        );
+        navigate("/medicines");
       })
       .finally(() => setLoading(false));
   }, [id, isEdit, navigate]);
@@ -63,7 +100,7 @@ export default function MedicineForm() {
   const addSchedule = () =>
     setForm((prev) => ({
       ...prev,
-      schedules: [...prev.schedules, { time: '12:00', dose: '1 tablet' }],
+      schedules: [...prev.schedules, { time: "12:00", dose: "1 tablet" }],
     }));
 
   const removeSchedule = (idx) =>
@@ -75,28 +112,32 @@ export default function MedicineForm() {
   const updateSchedule = (idx, field, value) =>
     setForm((prev) => ({
       ...prev,
-      schedules: prev.schedules.map((s, i) => (i === idx ? { ...s, [field]: value } : s)),
+      schedules: prev.schedules.map((s, i) =>
+        i === idx ? { ...s, [field]: value } : s,
+      ),
     }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+
     const payload = {
       ...form,
-      currentStock: Number(form.currentStock) || 0,
-      reorderLevel: Number(form.reorderLevel) || 0,
+      currentStock: form.currentStock === "" ? 0 : Number(form.currentStock),
+      reorderLevel: form.reorderLevel === "" ? 0 : Number(form.reorderLevel),
     };
+
     try {
       if (isEdit) {
         await medicineApi.update(id, payload);
-        toast.success('Medication updated');
+        toast.success("Medication updated successfully");
       } else {
         await medicineApi.create(payload);
-        toast.success('Medication added');
+        toast.success("Medication added successfully");
       }
-      navigate('/medicines');
+      navigate("/medicines");
     } catch (err) {
-      toast.error(err.normalizedMessage || 'Failed to save medication');
+      toast.error(err.normalizedMessage || "Failed to save medication");
     } finally {
       setSaving(false);
     }
@@ -122,14 +163,19 @@ export default function MedicineForm() {
 
       <div>
         <h1 className="text-2xl font-bold text-slate-900">
-          {isEdit ? 'Edit medication' : 'Add medication'}
+          {isEdit ? "Edit medication" : "Add medication"}
         </h1>
         <p className="text-slate-500 mt-1">
-          {isEdit ? 'Update the details below' : 'Fill in the details to start tracking this medicine'}
+          {isEdit
+            ? "Update the details below"
+            : "Fill in the details to start tracking this medicine"}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6"
+      >
         {/* Basic info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Name" required>
@@ -143,7 +189,8 @@ export default function MedicineForm() {
               className={inputClass}
             />
           </Field>
-          <Field label="Dosage" >
+
+          <Field label="Dosage">
             <input
               type="text"
               name="dosage"
@@ -153,21 +200,52 @@ export default function MedicineForm() {
               className={inputClass}
             />
           </Field>
+
           <Field label="Form">
-            <select name="form" value={form.form} onChange={handleChange} className={inputClass}>
-              {FORM_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+            <select
+              name="form"
+              value={form.form}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              {FORM_OPTIONS.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
             </select>
           </Field>
+
           <Field label="Instructions">
-            <select name="instructions" value={form.instructions} onChange={handleChange} className={inputClass}>
-              {INSTRUCTION_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+            <select
+              name="instructions"
+              value={form.instructions}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              {INSTRUCTION_OPTIONS.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
             </select>
           </Field>
+
           <Field label="Frequency">
-            <select name="frequency" value={form.frequency} onChange={handleChange} className={inputClass}>
-              {FREQUENCY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+            <select
+              name="frequency"
+              value={form.frequency}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              {FREQUENCY_OPTIONS.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
             </select>
           </Field>
+
           <div className="grid grid-cols-2 gap-3">
             <Field label="Current stock">
               <input
@@ -180,6 +258,7 @@ export default function MedicineForm() {
                 className={inputClass}
               />
             </Field>
+
             <Field label="Reorder at">
               <input
                 type="number"
@@ -209,7 +288,9 @@ export default function MedicineForm() {
         {/* Schedules */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <label className="text-sm font-medium text-slate-700">Schedule times</label>
+            <label className="text-sm font-medium text-slate-700">
+              Schedule times
+            </label>
             <button
               type="button"
               onClick={addSchedule}
@@ -218,19 +299,20 @@ export default function MedicineForm() {
               <Plus className="w-4 h-4" /> Add time
             </button>
           </div>
+
           <div className="space-y-2">
             {form.schedules.map((sched, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 <input
                   type="time"
                   value={sched.time}
-                  onChange={(e) => updateSchedule(idx, 'time', e.target.value)}
+                  onChange={(e) => updateSchedule(idx, "time", e.target.value)}
                   className={`${inputClass} flex-1`}
                 />
                 <input
                   type="text"
                   value={sched.dose}
-                  onChange={(e) => updateSchedule(idx, 'dose', e.target.value)}
+                  onChange={(e) => updateSchedule(idx, "dose", e.target.value)}
                   placeholder="e.g. 1 tablet"
                   className={`${inputClass} flex-1`}
                 />
@@ -261,7 +343,14 @@ export default function MedicineForm() {
             disabled={saving}
             className="flex-1 flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 rounded-xl transition-base disabled:opacity-60"
           >
-            {saving ? <Spinner size={20} /> : <><Save className="w-4 h-4" /> {isEdit ? 'Update' : 'Save'} medication</>}
+            {saving ? (
+              <Spinner size={20} />
+            ) : (
+              <>
+                <Save className="w-4 h-4" /> {isEdit ? "Update" : "Save"}{" "}
+                medication
+              </>
+            )}
           </button>
         </div>
       </form>
@@ -270,7 +359,7 @@ export default function MedicineForm() {
 }
 
 const inputClass =
-  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-base bg-white';
+  "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-base bg-white";
 
 function Field({ label, required, children }) {
   return (

@@ -1,30 +1,54 @@
-import { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import {
-  Pill, AlertTriangle, Clock, CheckCircle2, XCircle, Sunrise, Sun, Moon,
-  Plus, Package, Activity, CalendarDays,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
-import { medicineApi } from '@/services/api';
-import { useAuth } from '@/context/AuthContext';
-import Spinner from '@/components/Spinner';
+  Pill,
+  AlertTriangle,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Sunrise,
+  Sun,
+  Moon,
+  Plus,
+  Package,
+  Activity,
+  CalendarDays,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import { medicineApi } from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
+import Spinner from "@/components/Spinner";
 
 function todayStr() {
-  return new Date().toISOString().split('T')[0];
+  return new Date().toISOString().split("T")[0];
 }
 
 function getTimeIcon(time) {
-  const hour = parseInt(time?.split(':')[0] || '12', 10);
+  const hour = parseInt(time?.split(":")[0] || "12", 10);
   if (hour < 12) return Sunrise;
   if (hour < 18) return Sun;
   return Moon;
 }
 
 function timeBand(time) {
-  const hour = parseInt(time?.split(':')[0] || '12', 10);
-  if (hour < 12) return { label: 'Morning', icon: Sunrise, color: 'text-amber-500 bg-amber-50' };
-  if (hour < 18) return { label: 'Afternoon', icon: Sun, color: 'text-orange-500 bg-orange-50' };
-  return { label: 'Evening', icon: Moon, color: 'text-indigo-500 bg-indigo-50' };
+  const hour = parseInt(time?.split(":")[0] || "12", 10);
+  if (hour < 12)
+    return {
+      label: "Morning",
+      icon: Sunrise,
+      color: "text-amber-500 bg-amber-50",
+    };
+  if (hour < 18)
+    return {
+      label: "Afternoon",
+      icon: Sun,
+      color: "text-orange-500 bg-orange-50",
+    };
+  return {
+    label: "Evening",
+    icon: Moon,
+    color: "text-indigo-500 bg-indigo-50",
+  };
 }
 
 export default function Dashboard() {
@@ -37,29 +61,44 @@ export default function Dashboard() {
   useEffect(() => {
     Promise.all([medicineApi.getAll(), medicineApi.getLowStock()])
       .then(([medsRes, lowRes]) => {
-        setMedicines(medsRes.data || []);
-        setLowStock(lowRes.data || []);
+        // Safely extract the medicines array whether backend returns [] or { data: [] } or { medicines: [] }
+        const medsArray = Array.isArray(medsRes.data)
+          ? medsRes.data
+          : medsRes.data?.medicines || medsRes.data?.data || [];
+
+        const lowStockArray = Array.isArray(lowRes.data)
+          ? lowRes.data
+          : lowRes.data?.medicines || lowRes.data?.data || [];
+
+        setMedicines(medsArray);
+        setLowStock(lowStockArray);
       })
-      .catch((err) => toast.error(err.normalizedMessage || 'Failed to load dashboard data'))
+      .catch((err) =>
+        toast.error(err.normalizedMessage || "Failed to load dashboard data"),
+      )
       .finally(() => setLoading(false));
   }, []);
 
   // Build today's timeline from all medicine schedules
   const todayTimeline = useMemo(() => {
     const entries = [];
+    // Guard check to ensure medicines is an array
+    if (!Array.isArray(medicines)) return entries;
+
     medicines.forEach((med) => {
       (med.schedules || []).forEach((sched) => {
         entries.push({ medicine: med, schedule: sched });
       });
     });
+
     return entries.sort((a, b) =>
-      (a.schedule.time || '').localeCompare(b.schedule.time || '')
+      (a.schedule.time || "").localeCompare(b.schedule.time || ""),
     );
   }, [medicines]);
 
   const activeCount = medicines.length;
   const pendingToday = todayTimeline.filter(
-    (e) => e.schedule.status !== 'taken' && e.schedule.status !== 'skipped'
+    (e) => e.schedule.status !== "taken" && e.schedule.status !== "skipped",
   ).length;
   const lowStockCount = lowStock.length;
 
@@ -77,15 +116,17 @@ export default function Dashboard() {
             ? {
                 ...m,
                 schedules: m.schedules.map((s) =>
-                  s._id === sched._id ? { ...s, status } : s
+                  s._id === sched._id ? { ...s, status } : s,
                 ),
               }
-            : m
-        )
+            : m,
+        ),
       );
-      toast.success(status === 'taken' ? 'Dose marked as taken' : 'Dose skipped');
+      toast.success(
+        status === "taken" ? "Dose marked as taken" : "Dose skipped",
+      );
     } catch (err) {
-      toast.error(err.normalizedMessage || 'Failed to update dose status');
+      toast.error(err.normalizedMessage || "Failed to update dose status");
     } finally {
       setUpdatingId(null);
     }
@@ -105,11 +146,15 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
-            {greeting()}, {user?.name?.split(' ')[0] || 'there'}
+            {greeting()}, {user?.name?.split(" ")[0] || "there"}
           </h1>
           <p className="text-slate-500 mt-1 flex items-center gap-1.5">
             <CalendarDays className="w-4 h-4" />
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
           </p>
         </div>
         <Link
@@ -153,7 +198,9 @@ export default function Dashboard() {
             <div className="flex-1">
               <h3 className="font-semibold text-red-900">Low stock alerts</h3>
               <p className="text-sm text-red-700 mt-0.5">
-                {lowStockCount} {lowStockCount === 1 ? 'medicine needs' : 'medicines need'} restocking soon.
+                {lowStockCount}{" "}
+                {lowStockCount === 1 ? "medicine needs" : "medicines need"}{" "}
+                restocking soon.
               </p>
               <div className="flex flex-wrap gap-2 mt-3">
                 {lowStock.slice(0, 4).map((med) => (
@@ -178,7 +225,9 @@ export default function Dashboard() {
             <Activity className="w-5 h-5 text-brand-600" />
             Today's schedule
           </h2>
-          <span className="text-sm text-slate-400">{todayTimeline.length} doses</span>
+          <span className="text-sm text-slate-400">
+            {todayTimeline.length} doses
+          </span>
         </div>
 
         {todayTimeline.length === 0 ? (
@@ -186,8 +235,12 @@ export default function Dashboard() {
             <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4">
               <Clock className="w-8 h-8 text-slate-300" />
             </div>
-            <h3 className="font-medium text-slate-700">No doses scheduled for today</h3>
-            <p className="text-sm text-slate-400 mt-1">Add a medication to start tracking your schedule.</p>
+            <h3 className="font-medium text-slate-700">
+              No doses scheduled for today
+            </h3>
+            <p className="text-sm text-slate-400 mt-1">
+              Add a medication to start tracking your schedule.
+            </p>
             <Link
               to="/medicines/new"
               className="inline-flex items-center gap-2 mt-4 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-base"
@@ -200,8 +253,8 @@ export default function Dashboard() {
             {todayTimeline.map(({ medicine: med, schedule: sched }) => {
               const band = timeBand(sched.time);
               const BandIcon = band.icon;
-              const isTaken = sched.status === 'taken';
-              const isSkipped = sched.status === 'skipped';
+              const isTaken = sched.status === "taken";
+              const isSkipped = sched.status === "skipped";
               const idKey = `${med._id}-${sched._id}`;
 
               return (
@@ -211,19 +264,26 @@ export default function Dashboard() {
                 >
                   {/* Time badge */}
                   <div className="flex flex-col items-center shrink-0">
-                    <div className={`w-10 h-10 rounded-xl ${band.color} flex items-center justify-center`}>
+                    <div
+                      className={`w-10 h-10 rounded-xl ${band.color} flex items-center justify-center`}
+                    >
                       <BandIcon className="w-5 h-5" />
                     </div>
-                    <span className="text-xs font-semibold text-slate-600 mt-1.5">{sched.time}</span>
+                    <span className="text-xs font-semibold text-slate-600 mt-1.5">
+                      {sched.time}
+                    </span>
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className={`font-medium truncate ${isTaken ? 'text-slate-400 line-through' : 'text-slate-800'}`}>
+                    <p
+                      className={`font-medium truncate ${isTaken ? "text-slate-400 line-through" : "text-slate-800"}`}
+                    >
                       {med.name}
                     </p>
                     <p className="text-sm text-slate-400 truncate">
-                      {sched.dose || med.dosage} — {med.instructions || 'Anytime'}
+                      {sched.dose || med.dosage} —{" "}
+                      {med.instructions || "Anytime"}
                     </p>
                   </div>
 
@@ -239,15 +299,19 @@ export default function Dashboard() {
                   ) : (
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleDoseAction(med, sched, 'skipped')}
+                        onClick={() => handleDoseAction(med, sched, "skipped")}
                         disabled={updatingId === idKey}
                         className="w-9 h-9 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-100 hover:text-slate-600 flex items-center justify-center transition-base disabled:opacity-50"
                         title="Skip dose"
                       >
-                        {updatingId === idKey ? <Spinner size={16} /> : <XCircle className="w-4 h-4" />}
+                        {updatingId === idKey ? (
+                          <Spinner size={16} />
+                        ) : (
+                          <XCircle className="w-4 h-4" />
+                        )}
                       </button>
                       <button
-                        onClick={() => handleDoseAction(med, sched, 'taken')}
+                        onClick={() => handleDoseAction(med, sched, "taken")}
                         disabled={updatingId === idKey}
                         className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition-base disabled:opacity-50"
                       >
@@ -267,25 +331,29 @@ export default function Dashboard() {
 
 function greeting() {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return "Good morning";
+  if (h < 18) return "Good afternoon";
+  return "Good evening";
 }
 
 function SummaryCard({ icon: Icon, label, value, color, highlight }) {
   const colors = {
-    brand: 'bg-brand-50 text-brand-600',
-    amber: 'bg-amber-50 text-amber-600',
-    red: 'bg-red-50 text-red-600',
+    brand: "bg-brand-50 text-brand-600",
+    amber: "bg-amber-50 text-amber-600",
+    red: "bg-red-50 text-red-600",
   };
   return (
     <div
       className={`bg-white rounded-2xl border p-5 transition-base ${
-        highlight ? 'border-red-200 shadow-md shadow-red-50' : 'border-slate-100 shadow-sm'
+        highlight
+          ? "border-red-200 shadow-md shadow-red-50"
+          : "border-slate-100 shadow-sm"
       }`}
     >
       <div className="flex items-center justify-between">
-        <div className={`w-11 h-11 rounded-xl ${colors[color]} flex items-center justify-center`}>
+        <div
+          className={`w-11 h-11 rounded-xl ${colors[color]} flex items-center justify-center`}
+        >
           <Icon className="w-5 h-5" />
         </div>
         <span className="text-3xl font-bold text-slate-900">{value}</span>
