@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import AppLayout from "@/components/AppLayout";
 import GlobalAlarmListener from "@/components/GlobalAlarmListener";
 import Spinner from "@/components/Spinner";
+import LandingPage from "@/pages/LandingPage";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
@@ -34,7 +35,7 @@ function PublicRoute({ children }) {
       </div>
     );
   }
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -61,6 +62,8 @@ export default function App() {
           }}
         />
         <Routes>
+          {/* Landing Page */}
+          <Route path="/" element={<LandingPage />} />
           {/* Public Routes */}
           <Route
             path="/login"
