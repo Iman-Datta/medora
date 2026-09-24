@@ -97,7 +97,7 @@ export default function Notifications() {
       Notification.permission === "granted"
     ) {
       new Notification(title, {
-        icon: "/favicon.svg",
+        icon: "/Logo.png",
         tag: "medora-alarm",
         requireInteraction: true, // Stays on screen until user interacts
         ...options,

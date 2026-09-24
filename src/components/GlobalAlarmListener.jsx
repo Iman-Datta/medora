@@ -56,7 +56,7 @@ export default function GlobalAlarmListener() {
       if ("Notification" in window && Notification.permission === "granted") {
         new Notification(`⏰ ALARM: Time to take ${medName}!`, {
           body: `${dosage || "1 dose"} (${instructions || "After Food"})`,
-          icon: "/favicon.svg",
+          icon: "/Logo.png",
           tag: "medora-alarm",
           requireInteraction: true,
         });
