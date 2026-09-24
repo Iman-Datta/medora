@@ -26,7 +26,7 @@ export default function Login() {
       const user = res.data.user || res.data;
       login(token, user);
       toast.success(`Welcome back, ${user?.name?.split(" ")[0] || "there"}!`);
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       toast.error(
         err.normalizedMessage || "Login failed. Check your credentials.",
@@ -100,7 +100,7 @@ export default function Login() {
             </div>
           </div>
           <p className="text-slate-500 text-sm">
-            © 2026 Medora. Caring for your health.
+            © 2026 Medora.
           </p>
         </div>
       </div>
