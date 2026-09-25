@@ -27,6 +27,7 @@ export default function Login() {
       login(token, user);
       toast.success(`Welcome back, ${user?.name?.split(" ")[0] || "there"}!`);
       navigate("/dashboard");
+      
     } catch (err) {
       toast.error(
         err.normalizedMessage || "Login failed. Check your credentials.",
