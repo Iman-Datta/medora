@@ -27,6 +27,7 @@ export default function Login() {
       login(token, user);
       toast.success(`Welcome back, ${user?.name?.split(" ")[0] || "there"}!`);
       navigate("/dashboard");
+      
     } catch (err) {
       toast.error(
         err.normalizedMessage || "Login failed. Check your credentials.",
@@ -69,7 +70,11 @@ export default function Login() {
             </h2>
             <p className="text-slate-300 text-lg leading-relaxed max-w-md">
               Manage medications, scan prescriptions with AI, and get timely
+<<<<<<< HEAD
               reminders - all in one beautiful dashboard.
+=======
+              reminders-all in one beautiful dashboard.
+>>>>>>> caec7b5edd2de4b92ba2e65004d05d9ca106bd62
             </p>
             <div className="space-y-3 pt-4">
               {[
