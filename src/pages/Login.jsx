@@ -71,7 +71,7 @@ export default function Login() {
             </h2>
             <p className="text-slate-300 text-lg leading-relaxed max-w-md">
               Manage medications, scan prescriptions with AI, and get timely
-              reminders — all in one beautiful dashboard.
+              reminders-all in one beautiful dashboard.
             </p>
             <div className="space-y-3 pt-4">
               {[
