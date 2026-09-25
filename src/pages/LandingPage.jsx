@@ -626,4 +626,5 @@ const FounderCard = ({ name, role, number }) => {
 };
 
 
+
 export default LandingPage;

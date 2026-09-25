@@ -83,7 +83,7 @@ export default function App() {
           />
 
           {/* Protected Routes — GlobalAlarmListener only active here */}
-          <Route
+           <Route
             element={
               <ProtectedRoute>
                 <GlobalAlarmListener />
@@ -91,13 +91,14 @@ export default function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/medicines" element={<Medications />} />
             <Route path="/medicines/new" element={<MedicineForm />} />
             <Route path="/medicines/:id/edit" element={<MedicineForm />} />
             <Route path="/prescriptions" element={<Prescriptions />} />
             <Route path="/notifications" element={<Notifications />} />
-          </Route>
+          </Route> 
+          
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
