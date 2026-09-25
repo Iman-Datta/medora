@@ -35,7 +35,6 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left panel — form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-slate-50 order-2 lg:order-1">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8 flex justify-center">
@@ -121,7 +120,6 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Right panel — brand */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-teal-700 via-brand-700 to-brand-800 relative overflow-hidden order-1 lg:order-2">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 right-20 w-72 h-72 rounded-full bg-white blur-3xl" />

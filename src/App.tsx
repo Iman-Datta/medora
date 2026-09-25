@@ -82,7 +82,6 @@ export default function App() {
             }
           />
 
-          {/* Protected Routes — GlobalAlarmListener only active here */}
           <Route
             element={
               <ProtectedRoute>

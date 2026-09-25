@@ -101,7 +101,7 @@ const LandingPage = () => {
 
             <p className="mt-4 text-sm text-slate-500 max-w-lg">
               Just scan your prescription. Medora helps identify medicines,
-              dosage and frequency — so patients know what to take and when.
+              dosage and frequency - so patients know what to take and when.
             </p>
 
             {/* Buttons */}
@@ -489,7 +489,7 @@ const LandingPage = () => {
             </h2>
 
             <p className="mt-5 text-slate-500 text-lg">
-              Medora is a project built around one simple idea — making
+              Medora is a project built around one simple idea making
               medication management easier and more accessible.
             </p>
 

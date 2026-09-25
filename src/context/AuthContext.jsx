@@ -8,7 +8,6 @@ export function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken'));
   const [loading, setLoading] = useState(true);
 
-  // On mount — verify existing session
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -35,7 +34,6 @@ export function AuthProvider({ children }) {
     try {
       await authApi.logout();
     } catch {
-      // ignore — token may already be invalid
     }
     localStorage.removeItem('accessToken');
     setAccessToken(null);

@@ -209,7 +209,7 @@ export default function Dashboard() {
                     className="inline-flex items-center gap-1.5 bg-white border border-red-200 text-red-700 text-xs font-medium px-2.5 py-1 rounded-lg"
                   >
                     <Package className="w-3.5 h-3.5" />
-                    {med.name} — {med.currentStock} left
+                    {med.name} - {med.currentStock} left
                   </span>
                 ))}
               </div>
@@ -282,7 +282,7 @@ export default function Dashboard() {
                       {med.name}
                     </p>
                     <p className="text-sm text-slate-400 truncate">
-                      {sched.dose || med.dosage} —{" "}
+                      {sched.dose || med.dosage} - {" "}
                       {med.instructions || "Anytime"}
                     </p>
                   </div>

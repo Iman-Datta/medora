@@ -205,7 +205,7 @@ export default function Notifications() {
         await syncFcmToken();
       } else if (result === "denied") {
         toast.error(
-          "Notifications blocked — please enable them in browser settings",
+          "Notifications blocked please enable them in browser settings",
         );
       }
     } catch (err) {

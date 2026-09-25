@@ -38,7 +38,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left panel — brand */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-20 w-72 h-72 rounded-full bg-amber-500 blur-3xl" />
@@ -70,7 +69,7 @@ export default function Login() {
             </h2>
             <p className="text-slate-300 text-lg leading-relaxed max-w-md">
               Manage medications, scan prescriptions with AI, and get timely
-              reminders — all in one beautiful dashboard.
+              reminders - all in one beautiful dashboard.
             </p>
             <div className="space-y-3 pt-4">
               {[
@@ -99,13 +98,10 @@ export default function Login() {
               ))}
             </div>
           </div>
-          <p className="text-slate-500 text-sm">
-            © 2026 Medora.
-          </p>
+          <p className="text-slate-500 text-sm">© 2026 Medora.</p>
         </div>
       </div>
 
-      {/* Right panel — form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-slate-50">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8 flex justify-center">

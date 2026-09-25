@@ -186,7 +186,7 @@ export default function Prescriptions() {
           Scan Prescription
         </h1>
         <p className="text-slate-500 mt-1">
-          Upload a prescription image or PDF — our AI extracts medications for
+          Upload a prescription image or PDF our AI extracts medications for
           you.
         </p>
       </div>
@@ -243,7 +243,7 @@ export default function Prescriptions() {
                     Drop your prescription here
                   </p>
                   <p className="text-sm text-slate-400 mt-1">
-                    or click to browse — PNG, JPG, or PDF
+                    or click to browse PNG, JPG, or PDF
                   </p>
                 </div>
               </div>
@@ -338,7 +338,7 @@ export default function Prescriptions() {
                         {med.name || "Unnamed"}
                       </h3>
                       <p className="text-sm text-slate-400">
-                        {med.dosage} — {med.form} — {med.instructions}
+                        {med.dosage} - {med.form} - {med.instructions}
                       </p>
                       {(med.schedules || []).length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mt-2">
