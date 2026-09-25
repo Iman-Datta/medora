@@ -15,6 +15,7 @@ import Notifications from "@/pages/Notifications";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen text-brand-600">
@@ -22,12 +23,15 @@ function ProtectedRoute({ children }) {
       </div>
     );
   }
+
   if (!user) return <Navigate to="/login" replace />;
+
   return children;
 }
 
 function PublicRoute({ children }) {
   const { user, loading } = useAuth();
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen text-brand-600">
@@ -35,7 +39,9 @@ function PublicRoute({ children }) {
       </div>
     );
   }
+
   if (user) return <Navigate to="/dashboard" replace />;
+
   return children;
 }
 
@@ -57,13 +63,25 @@ export default function App() {
               boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
               border: "1px solid #f1f5f9",
             },
-            success: { iconTheme: { primary: "#059669", secondary: "#fff" } },
-            error: { iconTheme: { primary: "#dc2626", secondary: "#fff" } },
+            success: {
+              iconTheme: {
+                primary: "#059669",
+                secondary: "#fff",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#dc2626",
+                secondary: "#fff",
+              },
+            },
           }}
         />
+
         <Routes>
           {/* Landing Page */}
           <Route path="/" element={<LandingPage />} />
+
           {/* Public Routes */}
           <Route
             path="/login"
@@ -73,6 +91,7 @@ export default function App() {
               </PublicRoute>
             }
           />
+
           <Route
             path="/register"
             element={
@@ -82,12 +101,8 @@ export default function App() {
             }
           />
 
-<<<<<<< HEAD
-          <Route
-=======
           {/* Protected Routes — GlobalAlarmListener only active here */}
-           <Route
->>>>>>> caec7b5edd2de4b92ba2e65004d05d9ca106bd62
+          <Route
             element={
               <ProtectedRoute>
                 <GlobalAlarmListener />
@@ -101,8 +116,7 @@ export default function App() {
             <Route path="/medicines/:id/edit" element={<MedicineForm />} />
             <Route path="/prescriptions" element={<Prescriptions />} />
             <Route path="/notifications" element={<Notifications />} />
-          </Route> 
-          
+          </Route>
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
