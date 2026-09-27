@@ -82,12 +82,26 @@ export default function Dashboard() {
   // Build today's timeline from all medicine schedules
   const todayTimeline = useMemo(() => {
     const entries = [];
-    // Guard check to ensure medicines is an array
     if (!Array.isArray(medicines)) return entries;
+
+    const today = todayStr(); // "YYYY-MM-DD"
 
     medicines.forEach((med) => {
       (med.schedules || []).forEach((sched) => {
-        entries.push({ medicine: med, schedule: sched });
+        // Find today's status in takenStatus array
+        const todayRecord = (sched.takenStatus || []).find(
+          (entry) => entry.date === today,
+        );
+
+        const currentStatus = todayRecord ? todayRecord.status : "pending";
+
+        entries.push({
+          medicine: med,
+          schedule: {
+            ...sched,
+            status: currentStatus, // Inject resolved status into schedule object
+          },
+        });
       });
     });
 
@@ -282,7 +296,7 @@ export default function Dashboard() {
                       {med.name}
                     </p>
                     <p className="text-sm text-slate-400 truncate">
-                      {sched.dose || med.dosage} - {" "}
+                      {sched.dose || med.dosage} -{" "}
                       {med.instructions || "Anytime"}
                     </p>
                   </div>
