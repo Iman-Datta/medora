@@ -160,7 +160,7 @@ const LandingPage = () => {
                     Today's medication
                   </p>
                   <h3 className="text-xl font-bold text-slate-900 mt-1">
-                    Good morning 👋
+                    Good morning!!
                   </h3>
                 </div>
 
