@@ -55,9 +55,14 @@ export const medicineApi = {
       `/api/medicines/${medicineId}/schedule/${scheduleId}/status`,
       body,
     ),
+
+  // FIX: Added /api prefix to match server mount point
+  getHistory: (startDate, endDate) =>
+    api.get(
+      `/api/medicines/history?startDate=${startDate || ""}&endDate=${endDate || ""}`,
+    ),
 };
 
-// ─── Prescription endpoints ───────────────────────────────────────
 export const prescriptionApi = {
   parse: (file) => {
     const formData = new FormData();

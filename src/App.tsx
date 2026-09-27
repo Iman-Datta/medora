@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard";
 import Medications from "@/pages/Medications";
 import MedicineForm from "@/pages/MedicineForm";
 import Prescriptions from "@/pages/Prescriptions";
+import History from "@/pages/History";
 import Notifications from "@/pages/Notifications";
 
 function ProtectedRoute({ children }) {
@@ -116,6 +117,7 @@ export default function App() {
             <Route path="/medicines/:id/edit" element={<MedicineForm />} />
             <Route path="/prescriptions" element={<Prescriptions />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/history" element={<History />} />
           </Route>
 
           {/* Fallback */}
