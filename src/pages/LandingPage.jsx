@@ -540,23 +540,24 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+ <div className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl p-1 flex items-center justify-center">
+          <img
+            src="/Title.png"
+            alt="Medora"
+            className="w-full h-full object-contain"
+          />
+        </div>
 
-            <div className="flex items-center gap-3">
-
-              <div className="w-9 h-9 rounded-lg bg-orange-500 flex items-center justify-center">
-                <HeartPulse className="w-5 h-5 text-white" />
-              </div>
-
-              <div>
-                <p className="font-bold text-white">
-                  Medora
-                </p>
-                <p className="text-xs">
-                  Care. Remind. Better Health.
-                </p>
-              </div>
-
-            </div>
+        <div>
+          <p className="font-bold text-white">
+            Medora
+          </p>
+          <p className="text-xs">
+            Care. Remind. Better Health.
+          </p>
+        </div>
+      </div>
 
             <p className="text-sm">
             © 2026 Medora. All rights reserved.
