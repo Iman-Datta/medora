@@ -26,25 +26,28 @@ const LandingPage = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/70">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 h-20 flex items-center justify-between">
 
-          {/* Logo */}
-          <div
-            className="flex items-center gap-3 cursor-pointer"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-200">
-              <HeartPulse className="w-6 h-6 text-white" />
-            </div>
+         {/* Logo */}
+<div
+  className="flex items-center gap-4 backdrop-blur-md p-3.5 pr-6 rounded-2xl w-fit border border-slate-200/50 cursor-pointer"
+  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+>
+  <div className="w-12 h-12 rounded-xl p-1 flex items-center justify-center shadow-md">
+    <img
+      src="/Title.png"
+      alt="Medora"
+      className="w-full h-full object-contain"
+    />
+  </div>
 
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-slate-900">
-                Medora
-              </h1>
-              <p className="text-[10px] text-orange-500 font-semibold tracking-wider">
-                CARE. REMIND. BETTER HEALTH.
-              </p>
-            </div>
-          </div>
-
+  <div>
+    <h1 className="text-xl font-black text-slate-900 leading-none">
+      Medora
+    </h1>
+    <p className="text-orange-500 text-xs font-medium mt-1">
+      Care. Remind. Better Health.
+    </p>
+  </div>
+</div>
           {/* Navigation */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
             <a href="#how-it-works" className="hover:text-orange-500 transition">
